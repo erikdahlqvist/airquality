@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "pico/cyw43_arch.h"
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
@@ -90,6 +91,8 @@ void main()
 {
     stdio_init_all();
 
+    cyw43_arch_init();
+
     gpio_init(DHT_PIN);
     gpio_set_dir(DHT_PIN, GPIO_OUT);
 
@@ -117,6 +120,16 @@ void main()
         printf("Temperature (°C): %d.%d\n", dht.temperature, dht.temperature_decimal);
         printf("TVOC (ppb): %lu\n", sgp30.tvoc_ppb);
         printf("CO2  (ppm): %lu\n\n", sgp30.co2_ppm);
+
+        if(sgp30.co2_ppm > 1000)
+        {
+            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
+        }
+        else
+        {
+            cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
+        }
+
         sleep_ms(1000);
     }
 }
